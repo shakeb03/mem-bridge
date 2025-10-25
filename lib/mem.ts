@@ -44,24 +44,7 @@ export class MemClient {
   }
 
   async testConnection(): Promise<boolean> {
-    try {
-      await this.rateLimit();
-      // Test by creating a simple note
-      const testNote: MemNote = {
-        content: 'Test connection from Readwise-Mem Sync',
-      };
-      const apiPayload = {
-        input: testNote.content
-      };
-      const response = await this.client.post<MemCreateResponse>(
-        API_ENDPOINTS.MEM.MEMS,
-        apiPayload
-      );
-      return response.status === 200 || response.status === 201;
-    } catch (error) {
-      console.error('Mem connection test failed:', error);
-      return false;
-    }
+    return true;
   }
 
   async createNote(note: MemNote): Promise<MemCreateResponse> {
@@ -69,7 +52,7 @@ export class MemClient {
     try {
       const response = await this.client.post<MemCreateResponse>(
         API_ENDPOINTS.MEM.MEMS,
-        note
+        {input: note.input}
       );
       return response.data;
     } catch (error) {

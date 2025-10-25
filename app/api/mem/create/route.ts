@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!note || !note.content) {
+    if (!note || !note.input) {
       return NextResponse.json(
         { error: 'Note content is required' },
         { status: 400 }
@@ -23,9 +23,7 @@ export async function POST(request: NextRequest) {
 
     const client = new MemClient(apiKey);
     const memNote: MemNote = {
-      content: note.content,
-      createdAt: note.createdAt,
-      isArchived: note.isArchived || false,
+      input: note.content,
     };
 
     const result = await client.createNote(memNote);

@@ -60,8 +60,7 @@ export function formatHighlightForMem(
   content += `\n${tags.join(' ')}`;
 
   return {
-    content,
-    createdAt: highlight.highlighted_at,
+    input: content,
   };
 }
 
