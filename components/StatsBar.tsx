@@ -3,33 +3,34 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { usePipelineStore } from '@/store/pipelineStore';
+import { memColors } from '@/utils/colors';
 
 export default function StatsBar() {
   const { stage, fetchedData, validationSummary, syncProgress } =
     usePipelineStore();
 
-  const stats = [
-    {
-      label: 'Fetched',
-      value: fetchedData.highlights.length,
-      color: 'text-gray-700',
-    },
-    {
-      label: 'Valid',
-      value: validationSummary.valid,
-      color: 'text-green-700',
-    },
-    {
-      label: 'Invalid',
-      value: validationSummary.invalid,
-      color: 'text-red-700',
-    },
-    {
-      label: 'Synced',
-      value: syncProgress.synced,
-      color: 'text-blue-700',
-    },
-  ];
+    const stats = [
+      {
+        label: 'Fetched',
+        value: fetchedData.highlights.length,
+        colorValue: memColors.gray700,
+      },
+      {
+        label: 'Valid',
+        value: validationSummary.valid,
+        colorValue: memColors.success,
+      },
+      {
+        label: 'Invalid',
+        value: validationSummary.invalid,
+        colorValue: memColors.error,
+      },
+      {
+        label: 'Synced',
+        value: syncProgress.synced,
+        colorValue: memColors.primary,
+      },
+    ];
 
   if (stage === 'idle' || stage === 'connecting') return null;
 
@@ -37,10 +38,14 @@ export default function StatsBar() {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white border-t border-gray-200 px-8 py-4"
+      className="border-t px-8 py-5"
+      style={{ 
+        backgroundColor: 'white',
+        borderColor: memColors.gray200,
+      }}
     >
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-center gap-8">
+        <div className="flex items-center justify-center gap-12">
           {stats.map((stat, index) => (
             <motion.div
               key={stat.label}
@@ -49,10 +54,15 @@ export default function StatsBar() {
               transition={{ delay: index * 0.1 }}
               className="text-center"
             >
-              <p className={`text-3xl font-bold ${stat.color}`}>
+              <p className="text-4xl font-bold" style={{ color: stat.colorValue }}>
                 {stat.value}
               </p>
-              <p className="text-xs text-gray-600 mt-1">{stat.label}</p>
+              <p 
+                className="text-xs mt-1 font-medium"
+                style={{ color: memColors.gray600 }}
+              >
+                {stat.label}
+              </p>
             </motion.div>
           ))}
         </div>

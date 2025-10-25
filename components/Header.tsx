@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { usePipelineStore } from '@/store/pipelineStore';
 import { memColors } from '@/utils/colors';
 import BridgeGraphic from './BridgeGraphic';
@@ -32,7 +33,7 @@ export default function Header() {
         toast.error(data.error || 'Failed to connect to Readwise');
         return false;
       }
-    } catch (error) {
+    } catch {
       toast.error('Network error');
       return false;
     }
@@ -58,7 +59,7 @@ export default function Header() {
         toast.error(data.error || 'Failed to connect to Mem');
         return false;
       }
-    } catch (error) {
+    } catch {
       toast.error('Network error');
       return false;
     }
@@ -70,66 +71,121 @@ export default function Header() {
 
   return (
     <>
-      <header className="bg-white border-b border-gray-200 px-8 py-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-3 items-center gap-8">
-            {/* Readwise Section */}
-            <motion.button
-              onClick={() => setModalOpen('readwise')}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all ${
-                isReadwiseConnected
-                  ? 'border-green-500 bg-green-50'
-                  : 'border-gray-300 hover:border-blue-500 hover:bg-blue-50'
-              }`}
-            >
-              <span className="text-4xl">📚</span>
-              <div className="text-left flex-1">
-                <h3 className="font-semibold text-gray-900">Readwise</h3>
-                <p className="text-sm text-gray-600">
-                  {isReadwiseConnected ? '✓ Connected' : 'Click to connect'}
-                </p>
-              </div>
-            </motion.button>
+      <header 
+        className="border-b px-6 py-4"
+        style={{ 
+          backgroundColor: memColors.backgroundWarm,
+          borderColor: memColors.gray200 
+        }}
+      >
+        <div className="max-w-6xl mx-auto">
+  {/* Remove gap, make bridge connect seamlessly */}
+  <div className="flex items-center justify-between">
+    
+    {/* LEFT: Readwise */}
+    <motion.button
+      onClick={() => setModalOpen('readwise')}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      className="flex items-center gap-3 p-3 rounded-xl border-2 transition-all relative z-10"
+      style={{
+        borderColor: isReadwiseConnected 
+          ? memColors.success 
+          : memColors.gray300,
+        backgroundColor: isReadwiseConnected 
+          ? '#ffffff' 
+          : 'transparent',
+        boxShadow: isReadwiseConnected 
+          ? '0 2px 8px rgba(124,179,66,0.12)' 
+          : 'none',
+        width: '200px',
+      }}
+    >
+      <div className="w-12 h-12 bg-white rounded-lg shadow-sm flex items-center justify-center flex-shrink-0">
+        <Image
+          src="https://readwise.io/favicon.ico"
+          alt="Readwise"
+          width={32}
+          height={32}
+          unoptimized
+        />
+      </div>
 
-            {/* Bridge Section */}
-            <div className="flex flex-col items-center">
-              <BridgeGraphic isConnected={isBridgeActive} />
-              {isBridgeActive && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-xs font-medium text-blue-600 mt-2"
-                >
-                  Bridge Active ✓
-                </motion.div>
-              )}
-            </div>
+      <div className="text-left flex-1 min-w-0">
+        <h3 className="font-semibold text-sm" style={{ color: memColors.accent }}>
+          Readwise
+        </h3>
+        <p 
+          className="text-xs font-medium truncate"
+          style={{ 
+            color: isReadwiseConnected 
+              ? memColors.success 
+              : memColors.gray500 
+          }}
+        >
+          {isReadwiseConnected ? '✓ Connected' : 'Connect'}
+        </p>
+      </div>
+    </motion.button>
 
-            {/* Mem Section */}
-            <motion.button
-              onClick={() => setModalOpen('mem')}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className={`flex items-center gap-4 p-4 rounded-xl border-2 transition-all ${
-                isMemConnected
-                  ? 'border-green-500 bg-green-50'
-                  : 'border-gray-300 hover:border-blue-500 hover:bg-blue-50'
-              }`}
-            >
-              <span className="text-4xl">🧠</span>
-              <div className="text-left flex-1">
-                <h3 className="font-semibold text-gray-900">Mem</h3>
-                <p className="text-sm text-gray-600">
-                  {isMemConnected ? '✓ Connected' : 'Click to connect'}
-                </p>
-              </div>
-            </motion.button>
-          </div>
-        </div>
+    {/* CENTER: Bridge - stretches between boxes */}
+<div className="flex-1 flex items-center -mx-8 relative" style={{ zIndex: 5 }}>
+  <BridgeGraphic isConnected={isBridgeActive} />
+</div>
+
+    {/* RIGHT: Mem */}
+    <motion.button
+      onClick={() => setModalOpen('mem')}
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      className="flex items-center gap-3 p-3 rounded-xl border-2 transition-all relative z-10"
+      style={{
+        borderColor: isMemConnected 
+          ? memColors.success 
+          : memColors.gray300,
+        backgroundColor: isMemConnected 
+          ? '#ffffff' 
+          : 'transparent',
+        boxShadow: isMemConnected 
+          ? '0 2px 8px rgba(124,179,66,0.12)' 
+          : 'none',
+        width: '200px',
+        zIndex: 10,
+      }}
+    >
+      <div 
+        className="w-12 h-12 rounded-lg shadow-sm flex items-center justify-center flex-shrink-0"
+        style={{ backgroundColor: memColors.primaryLight }}
+      >
+        <Image
+          src="/mem-logo.png"
+          alt="Mem"
+          width={32}
+          height={32}
+          unoptimized
+        />
+      </div>
+
+      <div className="text-left flex-1 min-w-0">
+        <h3 className="font-semibold text-sm" style={{ color: memColors.accent }}>
+          Mem
+        </h3>
+        <p 
+          className="text-xs font-medium truncate"
+          style={{ 
+            color: isMemConnected 
+              ? memColors.success 
+              : memColors.gray500 
+          }}
+        >
+          {isMemConnected ? '✓ Connected' : 'Connect'}
+        </p>
+      </div>
+    </motion.button>
+  </div>
+</div>
       </header>
-
+  
       {/* Connection Modals */}
       <ConnectionModal
         isOpen={modalOpen === 'readwise'}

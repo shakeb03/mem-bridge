@@ -1,26 +1,70 @@
 @import "tailwindcss";
 
-/* Custom Scrollbar */
+/* Mem-inspired warm color scheme */
+:root {
+  --color-primary: #e4bc9b;
+  --color-primary-dark: #d4a67b;
+  --color-background: #faf8f6;
+  --color-text: #44403c;
+}
+
+/* Custom Scrollbar - Warm Theme */
 .custom-scrollbar::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #f3f4f6;
-  border-radius: 4px;
+  background: #faf8f6;
+  border-radius: 8px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 4px;
+  background: #e4bc9b;
+  border-radius: 8px;
+  border: 2px solid #faf8f6;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  background: #d4a67b;
 }
 
 /* Smooth animations */
 * {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Remove default margins */
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #faf8f6;
+  color: #44403c;
+}
+
+/* Smooth transitions for interactive elements */
+button,
+input,
+select {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Focus styles matching Mem's aesthetic */
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  ring: 2px;
+  ring-color: #e4bc9b;
+  border-color: #e4bc9b;
+}
+
+/* Card hover effects */
+.card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(228, 188, 155, 0.2);
 }

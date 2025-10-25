@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-import { memColors } from '@/utils/colors';
 import toast from 'react-hot-toast';
 
 interface ConnectionModalProps {
@@ -55,8 +54,7 @@ export default function ConnectionModal({
         onClose();
         setApiKey('');
       }
-    } catch (error) {
-      // Error handled by parent
+    } catch {
     } finally {
       setTesting(false);
     }

@@ -4,10 +4,10 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { usePipelineStore } from '@/store/pipelineStore';
 import { ReadwiseHighlight } from '@/types/readwise';
-import { ValidationResult } from '@/types/pipeline';
 import { getValidHighlights, getInvalidHighlights } from '@/lib/validation';
 import KanbanColumn from './KanbanColumn';
 import toast from 'react-hot-toast';
+import { memColors } from '@/utils/colors';
 
 export default function KanbanBoard() {
   const {
@@ -16,11 +16,8 @@ export default function KanbanBoard() {
     stage,
     fetchedData,
     validationSummary,
-    syncProgress,
-    setFetchProgress,
     setFetchedData,
     setValidationSummary,
-    setSyncProgress,
     setStage,
   } = usePipelineStore();
 
@@ -56,7 +53,7 @@ export default function KanbanBoard() {
           toast.error(data.error || 'Failed to fetch highlights');
           setStage('idle');
         }
-      } catch (error) {
+      } catch {
         toast.error('Network error');
         setStage('idle');
       }
@@ -114,7 +111,7 @@ export default function KanbanBoard() {
           toast.error(data.error || 'Validation failed');
           setStage('idle');
         }
-      } catch (error) {
+      } catch {
         toast.error('Network error during validation');
         setStage('idle');
       }
@@ -164,7 +161,7 @@ export default function KanbanBoard() {
           toast.error(data.error || 'Sync failed');
           setStage('idle');
         }
-      } catch (error) {
+      } catch {
         toast.error('Network error during sync');
         setStage('idle');
       }
@@ -176,26 +173,32 @@ export default function KanbanBoard() {
   const isActive = ['fetching', 'validating', 'syncing'].includes(stage);
 
   return (
-    <div className="flex-1 bg-gray-100 p-8 overflow-hidden">
-      <div className="max-w-7xl mx-auto h-full">
-        {!isActive ? (
-          <div className="h-full flex items-center justify-center">
-            <div className="text-center">
-              <span className="text-6xl mb-4 block">🌉</span>
-              <h3 className="text-xl font-semibold text-gray-700 mb-2">
-                Ready to Sync
-              </h3>
-              <p className="text-gray-500">
-                Connect both services and click `&quot;`Sync Now`&quot;` to begin
-              </p>
-            </div>
-          </div>
-        ) : (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="grid grid-cols-3 gap-6 h-full"
-          >
+    <div className="flex-1 p-8 overflow-hidden" style={{ backgroundColor: memColors.backgroundWarm }}>
+  <div className="max-w-7xl mx-auto h-full">
+    {!isActive ? (
+      <div className="h-full flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center p-12 rounded-2xl"
+          style={{ backgroundColor: 'white', border: `2px solid ${memColors.gray200}` }}
+        >
+          <span className="text-6xl mb-4 block">🌉</span>
+          <h3 className="text-2xl font-semibold mb-2" style={{ color: memColors.accent }}>
+            Ready to Sync
+          </h3>
+          <p style={{ color: memColors.gray600 }}>
+            Connect both services and click `&quot;`Sync Now`&quot;` to begin
+          </p>
+        </motion.div>
+      </div>
+    ) : (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="grid grid-cols-3 gap-6 h-full"
+      >
+        {/* Columns stay the same */}
             {/* Readwise Column */}
             <KanbanColumn
               title="Readwise"

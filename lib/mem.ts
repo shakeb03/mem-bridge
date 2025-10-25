@@ -76,7 +76,6 @@ export class MemClient {
     let errors = 0;
     const errorDetails: { note: MemNote, error: unknown }[] = [];
     const totalBatches = Math.ceil(notes.length / BATCH_CONFIG.SIZE);
-    const startTime = Date.now();
 
     onProgress?.({
       total: notes.length,
