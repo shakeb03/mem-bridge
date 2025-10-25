@@ -1,0 +1,96 @@
+### Test Readwise Connection
+POST http://localhost:3000/api/readwise/test
+Content-Type: application/json
+
+{
+  "token": "XkqXvWoS8QBCFN6aWXHys6ETmqvNyjth7RsiHbNeS3BflDJNNT"
+}
+
+### Test Mem Connection
+POST http://localhost:3000/api/mem/test
+Content-Type: application/json
+
+{
+  "apiKey": "sk-mem-eaef9866-bb10-47a9-acfc-5c94f6d014d1"
+}
+
+### Fetch Readwise Highlights (Full Sync)
+POST http://localhost:3000/api/readwise/fetch
+Content-Type: application/json
+
+{
+  "token": "XkqXvWoS8QBCFN6aWXHys6ETmqvNyjth7RsiHbNeS3BflDJNNT"
+}
+
+### Fetch Readwise Highlights (Date Range)
+POST http://localhost:3000/api/readwise/fetch
+Content-Type: application/json
+
+{
+  "token": "XkqXvWoS8QBCFN6aWXHys6ETmqvNyjth7RsiHbNeS3BflDJNNT",
+  "dateRange": {
+    "start": "2024-01-01",
+    "end": "2024-12-31"
+  }
+}
+
+### Create Single Note in Mem
+POST http://localhost:3000/api/mem/create
+Content-Type: application/json
+
+{
+  "apiKey": "your_mem_api_key_here",
+  "note": {
+    "content": "# Test Note\n\nThis is a test note from API",
+    "createdAt": "2024-01-01T00:00:00Z"
+  }
+}
+
+### Validate Highlights
+POST http://localhost:3000/api/sync/validate
+Content-Type: application/json
+
+{
+  "highlights": [],
+  "books": []
+}
+
+### Execute Sync
+POST http://localhost:3000/api/sync/execute
+Content-Type: application/json
+
+{
+  "apiKey": "your_mem_api_key_here",
+  "validationSummary": {
+    "results": []
+  },
+  "books": []
+}
+
+### Schedule Sync
+POST http://localhost:3000/api/sync/schedule
+Content-Type: application/json
+
+{
+  "userId": "test-user-123",
+  "frequency": "daily",
+  "enabled": true
+}
+
+### Get Schedule
+GET http://localhost:3000/api/sync/schedule?userId=test-user-123
+
+### Save Credentials
+POST http://localhost:3000/api/storage/save-credentials
+Content-Type: application/json
+
+{
+  "userId": "test-user-123",
+  "credentials": {
+    "readwiseToken": "your_token",
+    "memApiKey": "your_key"
+  }
+}
+
+### Get Credentials
+GET http://localhost:3000/api/storage/get-credentials?userId=test-user-123
