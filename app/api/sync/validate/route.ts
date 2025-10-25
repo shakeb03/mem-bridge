@@ -29,7 +29,7 @@ export async function POST(request: NextRequest) {
     );
 
     // Extract formatted content strings
-    const formattedContents = formattedNotes.map((note) => note.content);
+    const formattedContents = formattedNotes.map((note) => note.input);
 
     // Validate all highlights
     const validationSummary = validateBatch(
