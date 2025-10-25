@@ -7,6 +7,7 @@ import SyncControls from '@/components/SyncControls';
 import KanbanBoard from '@/components/KanbanBoard';
 import StatsBar from '@/components/StatsBar';
 import { memColors } from '@/utils/colors';
+import Footer from '@/components/Footer';
 
 export default function Home() {
   const { stage } = usePipelineStore();
@@ -27,6 +28,9 @@ export default function Home() {
 
       {/* Stats Bar at Bottom */}
       <StatsBar />
+
+      {/* Footer */}
+      <Footer />
 
       {/* Loading Overlay for Complete State */}
       {stage === 'complete' && (
