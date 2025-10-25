@@ -1,7 +1,5 @@
 export interface MemNote {
-    content: string;
-    createdAt?: string;
-    isArchived?: boolean;
+    input: string;
   }
   
   export interface MemCreateResponse {
