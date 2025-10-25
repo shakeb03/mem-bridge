@@ -1,32 +1,45 @@
 export const memColors = {
-    // Primary
-    primary: '#0066FF',
-    primaryHover: '#0052CC',
-    primaryLight: '#E6F0FF',
-    
-    // Status
-    success: '#10B981',
-    successLight: '#D1FAE5',
-    warning: '#F59E0B',
-    warningLight: '#FEF3C7',
-    error: '#EF4444',
-    errorLight: '#FEE2E2',
-    
-    // Neutrals
-    gray50: '#F9FAFB',
-    gray100: '#F3F4F6',
-    gray200: '#E5E7EB',
-    gray300: '#D1D5DB',
-    gray600: '#4B5563',
-    gray700: '#374151',
-    gray800: '#1F2937',
-    gray900: '#111827',
-    
-    // Background
-    background: '#FFFFFF',
-    backgroundAlt: '#F9FAFB',
-    
-    // Bridge
-    bridgeStart: '#0066FF',
-    bridgeEnd: '#00D4FF',
-  } as const;
+  // Mem Primary Colors
+  primary: '#e4bc9b',        // Mem's signature warm beige
+  primaryDark: '#d4a67b',    // Darker shade for hover
+  primaryLight: '#f4dcc3',   // Lighter shade for backgrounds
+  primaryVeryLight: '#faf5f0', // Very light for subtle backgrounds
+  
+  // Accent Colors
+  accent: '#8b7355',         // Warm brown for text
+  accentLight: '#a89179',    // Light brown
+  
+  // Status Colors (warmer tones to match theme)
+  success: '#7cb342',        // Warm green
+  successLight: '#e8f5e9',
+  warning: '#ffa726',        // Warm orange
+  warningLight: '#fff3e0',
+  error: '#e57373',          // Warm red
+  errorLight: '#ffebee',
+  
+  // Neutrals (warm grays)
+  gray50: '#fafaf9',
+  gray100: '#f5f5f4',
+  gray200: '#e7e5e4',
+  gray300: '#d6d3d1',
+  gray400: '#a8a29e',
+  gray500: '#78716c',
+  gray600: '#57534e',
+  gray700: '#44403c',
+  gray800: '#292524',
+  gray900: '#1c1917',
+  
+  // Backgrounds
+  background: '#ffffff',
+  backgroundWarm: '#faf8f6',  // Warm white
+  
+  // Bridge
+  woodLight: '#d4a574',       // Light wood
+  woodMid: '#b8884d',         // Mid wood
+  woodDark: '#8b6635',        // Dark wood
+  rope: '#6b4423',            // Rope color
+  
+  // Service Colors
+  readwiseBlue: '#4a9eff',
+  memBeige: '#e4bc9b',
+} as const;

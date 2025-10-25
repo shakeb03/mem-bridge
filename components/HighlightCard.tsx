@@ -21,29 +21,34 @@ export default function HighlightCard({
 }: HighlightCardProps) {
   const statusConfig = {
     fetched: {
-      bg: 'bg-white',
-      border: 'border-gray-200',
+      bg: 'white',
+      border: memColors.gray300,
       icon: '📄',
+      shadow: '0 2px 8px rgba(0,0,0,0.05)',
     },
     valid: {
-      bg: 'bg-green-50',
-      border: 'border-green-500',
+      bg: memColors.successLight,
+      border: memColors.success,
       icon: '✓',
+      shadow: '0 4px 12px rgba(124,179,66,0.2)',
     },
     warning: {
-      bg: 'bg-yellow-50',
-      border: 'border-yellow-500',
+      bg: memColors.warningLight,
+      border: memColors.warning,
       icon: '⚠',
+      shadow: '0 4px 12px rgba(255,167,38,0.2)',
     },
     error: {
-      bg: 'bg-red-50',
-      border: 'border-red-500',
+      bg: memColors.errorLight,
+      border: memColors.error,
       icon: '✗',
+      shadow: '0 4px 12px rgba(229,115,115,0.2)',
     },
     synced: {
-      bg: 'bg-blue-50',
-      border: 'border-blue-500',
+      bg: memColors.primaryLight,
+      border: memColors.primary,
       icon: '✓',
+      shadow: '0 4px 12px rgba(228,188,155,0.3)',
     },
   };
 
@@ -59,27 +64,41 @@ export default function HighlightCard({
         duration: 0.3,
         delay: index * 0.05,
       }}
-      className={`${config.bg} ${config.border} border-2 rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow cursor-default`}
+      className="rounded-xl p-4 border-2 cursor-default card-hover"
+      style={{
+        backgroundColor: config.bg,
+        borderColor: config.border,
+        boxShadow: config.shadow,
+      }}
     >
       {/* Header */}
-      <div className="flex items-start justify-between gap-2 mb-2">
+      <div className="flex items-start justify-between gap-2 mb-3">
         {bookTitle && (
-          <h4 className="font-medium text-gray-900 text-sm line-clamp-1">
+          <h4 
+            className="font-semibold text-sm line-clamp-1"
+            style={{ color: memColors.accent }}
+          >
             {truncateText(bookTitle, 40)}
           </h4>
         )}
-        <span className="text-lg flex-shrink-0">{config.icon}</span>
+        <span className="text-xl flex-shrink-0">{config.icon}</span>
       </div>
-
+  
       {/* Highlight Text */}
-      <blockquote className="text-gray-700 text-sm line-clamp-3 italic">
+      <blockquote 
+        className="text-sm line-clamp-3 italic leading-relaxed"
+        style={{ color: memColors.gray700 }}
+      >
         `&quot;`{truncateText(highlight.text, 150)}`&quot;`
       </blockquote>
-
+  
       {/* Footer */}
       {highlight.note && (
-        <div className="mt-2 pt-2 border-t border-gray-200">
-          <p className="text-xs text-gray-600 line-clamp-2">
+        <div 
+          className="mt-3 pt-3 border-t"
+          style={{ borderColor: memColors.gray200 }}
+        >
+          <p className="text-xs line-clamp-2" style={{ color: memColors.gray600 }}>
             <strong>Note:</strong> {truncateText(highlight.note, 80)}
           </p>
         </div>

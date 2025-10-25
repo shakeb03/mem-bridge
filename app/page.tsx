@@ -6,12 +6,16 @@ import Header from '@/components/Header';
 import SyncControls from '@/components/SyncControls';
 import KanbanBoard from '@/components/KanbanBoard';
 import StatsBar from '@/components/StatsBar';
+import { memColors } from '@/utils/colors';
 
 export default function Home() {
   const { stage } = usePipelineStore();
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-100">
+    <div 
+    className="min-h-screen flex flex-col"
+    style={{ backgroundColor: memColors.backgroundWarm }}
+  >
       {/* Header with Readwise, Bridge, Mem */}
       <Header />
 

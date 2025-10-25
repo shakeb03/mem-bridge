@@ -47,18 +47,31 @@ export default function SyncControls() {
   };
 
   return (
-    <div className="bg-white border-b border-gray-200 px-8 py-4">
+    <div 
+      className="border-b px-8 py-4"
+      style={{ 
+        backgroundColor: 'white',
+        borderColor: memColors.gray200,
+      }}
+    >
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-center gap-6">
           {/* Sync Option Tabs */}
-          <div className="flex gap-2 bg-gray-100 p-1 rounded-lg">
+          <div 
+            className="flex gap-2 p-1 rounded-lg"
+            style={{ backgroundColor: memColors.gray100 }}
+          >
             <button
               onClick={() => setSelectedOption('full')}
               className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
                 selectedOption === 'full'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'shadow-sm'
+                  : ''
               }`}
+              style={{
+                backgroundColor: selectedOption === 'full' ? 'white' : 'transparent',
+                color: selectedOption === 'full' ? memColors.accent : memColors.gray600,
+              }}
             >
               Full Sync
             </button>
@@ -66,14 +79,18 @@ export default function SyncControls() {
               onClick={() => setSelectedOption('date-range')}
               className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
                 selectedOption === 'date-range'
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900'
+                  ? 'shadow-sm'
+                  : ''
               }`}
+              style={{
+                backgroundColor: selectedOption === 'date-range' ? 'white' : 'transparent',
+                color: selectedOption === 'date-range' ? memColors.accent : memColors.gray600,
+              }}
             >
               Date Range
             </button>
           </div>
-
+  
           {/* Date Range Inputs */}
           {selectedOption === 'date-range' && (
             <motion.div
@@ -96,18 +113,20 @@ export default function SyncControls() {
               />
             </motion.div>
           )}
-
+          
           {/* Sync Button */}
           <motion.button
             onClick={handleSync}
             disabled={!isBridgeActive}
             whileHover={isBridgeActive ? { scale: 1.05 } : {}}
             whileTap={isBridgeActive ? { scale: 0.95 } : {}}
-            className={`px-6 py-3 rounded-lg font-semibold text-white transition-all ${
-              isBridgeActive
-                ? 'bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/30'
-                : 'bg-gray-300 cursor-not-allowed'
-            }`}
+            className="px-8 py-3 rounded-xl font-semibold text-white transition-all"
+            style={{
+              backgroundColor: isBridgeActive ? memColors.primary : memColors.gray300,
+              boxShadow: isBridgeActive 
+                ? '0 4px 14px rgba(228,188,155,0.4)' 
+                : 'none',
+            }}
           >
             Sync Now
           </motion.button>
