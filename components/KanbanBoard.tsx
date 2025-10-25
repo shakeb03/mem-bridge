@@ -8,6 +8,8 @@ import { getValidHighlights, getInvalidHighlights } from '@/lib/validation';
 import KanbanColumn from './KanbanColumn';
 import toast from 'react-hot-toast';
 import { memColors } from '@/utils/colors';
+import { analytics } from '@/lib/analytics';
+
 
 export default function KanbanBoard() {
   const {
@@ -47,6 +49,11 @@ export default function KanbanBoard() {
           setFetchedHighlights(data.data.highlights);
           toast.success(`Fetched ${data.data.count} highlights!`);
           
+          analytics.syncStarted({
+            syncType: syncConfig?.option || 'full',
+            highlightsCount: data.data.count,
+          });
+
           // Auto-start validation
           setTimeout(() => setStage('validating'), 500);
         } else {
@@ -85,6 +92,12 @@ export default function KanbanBoard() {
           // Animate cards moving to validation column
           const validResults = getValidHighlights(data.data);
           const invalidResults = getInvalidHighlights(data.data);
+
+          analytics.validationCompleted({
+            total: data.data.total,
+            valid: validResults.length,
+            invalid: invalidResults.length,
+          });
 
           // Move valid highlights with animation
           validResults.forEach((result, index) => {
@@ -125,6 +138,7 @@ export default function KanbanBoard() {
     if (stage !== 'syncing' || !credentials) return;
 
     const executeSync = async () => {
+      const startTime = Date.now();
       try {
         const validResults = getValidHighlights(validationSummary);
 
@@ -153,6 +167,14 @@ export default function KanbanBoard() {
           });
 
           toast.success(`Synced ${data.data.synced} highlights to Mem!`);
+
+          analytics.syncCompleted({
+            syncType: syncConfig?.option || 'full',
+            totalHighlights: data.data.total,
+            syncedCount: data.data.synced,
+            errorCount: data.data.errors,
+            durationSeconds: Math.round((Date.now() - startTime) / 1000),
+          });
           
           setTimeout(() => {
             setStage('complete');

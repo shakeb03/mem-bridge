@@ -4,6 +4,7 @@ import { formatHighlightBatch } from '@/lib/formatting';
 import { getValidHighlights } from '@/lib/validation';
 import { ValidationSummary } from '@/types/pipeline';
 import { ReadwiseBook } from '@/types/readwise';
+import { kv } from '@vercel/kv';
 
 export const maxDuration = 300; // 5 minutes for large syncs
 
@@ -46,6 +47,22 @@ export async function POST(request: NextRequest) {
     // Create Mem client and sync in batches
     const client = new MemClient(apiKey);
     const syncResult = await client.createNotesInBatches(memNotes);
+
+    try {
+      // Generate anonymous user ID from API key hash
+      const userId = Buffer.from(apiKey).toString('base64').substring(0, 16);
+      
+      // Increment counters
+      await kv.incr('stats:total_syncs');
+      await kv.incrby('stats:total_notes', syncResult.synced);
+      await kv.sadd('stats:unique_users', userId);
+      
+      // Store last sync timestamp
+      await kv.set(`stats:last_sync:${userId}`, new Date().toISOString());
+    } catch (statsError) {
+      // Don't fail the sync if analytics fail
+      console.error('Analytics error:', statsError);
+    }
 
     return NextResponse.json({
       success: true,

@@ -1,4 +1,4 @@
-import axios, { AxiosInstance } from 'axios';
+import axios, { AxiosInstance, AxiosResponse } from 'axios';
 import { API_ENDPOINTS, RATE_LIMITS } from '@/utils/constants';
 import { sleep } from '@/utils/helpers';
 import {
@@ -94,8 +94,8 @@ export class ReadwiseClient {
       nextUrl = API_ENDPOINTS.READWISE.HIGHLIGHTS;
       while (nextUrl) {
         await this.rateLimit();
-
-        const response = await this.client.get<ReadwiseHighlightsResponse>(
+      
+        const response: AxiosResponse<ReadwiseHighlightsResponse> = await this.client.get<ReadwiseHighlightsResponse>(
           nextUrl,
           {
             params: {
@@ -104,11 +104,11 @@ export class ReadwiseClient {
             },
           }
         );
-
+      
         allHighlights.push(...response.data.results);
         nextUrl = response.data.next;
         currentPage++;
-
+      
         onProgress?.({
           total: totalCount,
           current: allHighlights.length,
@@ -139,18 +139,23 @@ export class ReadwiseClient {
   async fetchBooks(): Promise<ReadwiseBook[]> {
     const allBooks: ReadwiseBook[] = [];
     let nextUrl: string | null = API_ENDPOINTS.READWISE.BOOKS;
-
+  
     try {
       while (nextUrl) {
         await this.rateLimit();
-        const response = await this.client.get<ReadwiseBooksResponse>(nextUrl, {
+        
+        // Fix 1: Explicitly type 'apiResponse'
+        const apiResponse: AxiosResponse<ReadwiseBooksResponse> = await this.client.get<ReadwiseBooksResponse>(nextUrl, {
           params: { page_size: 100 },
         });
-
-        allBooks.push(...response.data.results);
-        nextUrl = response.data.next;
+        
+        // Fix 2: Explicitly type 'res'
+        const res: ReadwiseBooksResponse = apiResponse.data;
+  
+        allBooks.push(...res.results);
+        nextUrl = res.next;
       }
-
+  
       return allBooks;
     } catch (error) {
       console.error('Error fetching books:', error);
