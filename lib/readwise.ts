@@ -67,7 +67,6 @@ export class ReadwiseClient {
   ): Promise<ReadwiseHighlight[]> {
     const allHighlights: ReadwiseHighlight[] = [];
     let nextUrl: string | null = API_ENDPOINTS.READWISE.HIGHLIGHTS;
-    let currentPage = 0;
 
     try {
       // First, get total count
@@ -107,7 +106,6 @@ export class ReadwiseClient {
       
         allHighlights.push(...response.data.results);
         nextUrl = response.data.next;
-        currentPage++;
       
         onProgress?.({
           total: totalCount,

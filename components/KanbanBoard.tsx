@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { usePipelineStore } from '@/store/pipelineStore';
 import { ReadwiseHighlight } from '@/types/readwise';
@@ -9,6 +9,8 @@ import KanbanColumn from './KanbanColumn';
 import toast from 'react-hot-toast';
 import { memColors } from '@/utils/colors';
 import { analytics } from '@/lib/analytics';
+import GroupByBookModal from './GroupByBookModal';
+import QuotaExceededModal from './QuotaExceededModal';
 
 
 export default function KanbanBoard() {
@@ -21,11 +23,85 @@ export default function KanbanBoard() {
     setFetchedData,
     setValidationSummary,
     setStage,
+    groupByBook,
+    setGroupByBook,
   } = usePipelineStore();
 
   const [fetchedHighlights, setFetchedHighlights] = useState<ReadwiseHighlight[]>([]);
   const [validatingHighlights, setValidatingHighlights] = useState<ReadwiseHighlight[]>([]);
   const [syncedHighlights, setSyncedHighlights] = useState<ReadwiseHighlight[]>([]);
+  const [showGroupingPrompt, setShowGroupingPrompt] = useState(false);
+  const [groupableBookCount, setGroupableBookCount] = useState(0);
+  const hasPromptedForGrouping = useRef(false);
+  const [quotaModalOpen, setQuotaModalOpen] = useState(false);
+  const [quotaDetails, setQuotaDetails] = useState<{
+    plan?: string;
+    limit?: number;
+    used?: number;
+    resetTime?: string;
+    upgradeUrl?: string;
+    message?: string;
+  } | null>(null);
+  const [quotaCounts, setQuotaCounts] = useState<{ synced: number; errors: number }>({
+    synced: 0,
+    errors: 0,
+  });
+
+  const scheduleValidation = useCallback(() => {
+    setTimeout(() => setStage('validating'), 500);
+  }, [setStage]);
+
+  const openQuotaModal = useCallback(
+    (payload: {
+      details?: {
+        plan?: string;
+        limit?: number;
+        used?: number;
+        resetTime?: string;
+        upgradeUrl?: string;
+        message?: string;
+      } | null;
+      synced?: number;
+      errors?: number;
+    }) => {
+      setQuotaDetails(payload.details ?? null);
+      setQuotaCounts({ synced: payload.synced ?? 0, errors: payload.errors ?? 0 });
+      setQuotaModalOpen(true);
+    },
+    []
+  );
+
+  const handleGroupingDecision = useCallback(
+    (shouldGroup: boolean) => {
+      setGroupByBook(shouldGroup);
+      setShowGroupingPrompt(false);
+      hasPromptedForGrouping.current = true;
+
+      if (shouldGroup) {
+        toast.success('Grouping highlights by book');
+      } else {
+        toast.success('Keeping individual highlight notes');
+      }
+
+      scheduleValidation();
+    },
+    [scheduleValidation, setGroupByBook]
+  );
+
+  useEffect(() => {
+    if (stage === 'fetching') {
+      hasPromptedForGrouping.current = false;
+      setGroupByBook(false);
+      queueMicrotask(() => {
+        setFetchedHighlights([]);
+        setValidatingHighlights([]);
+        setSyncedHighlights([]);
+        setQuotaModalOpen(false);
+        setQuotaDetails(null);
+        setQuotaCounts({ synced: 0, errors: 0 });
+      });
+    }
+  }, [stage, setGroupByBook]);
 
   // Fetch from Readwise
   useEffect(() => {
@@ -54,8 +130,26 @@ export default function KanbanBoard() {
             highlightsCount: data.data.count,
           });
 
-          // Auto-start validation
-          setTimeout(() => setStage('validating'), 500);
+          const bookCounts = new Map<number, number>();
+          data.data.highlights.forEach((highlight: ReadwiseHighlight) => {
+            if (highlight.book_id) {
+              const current = bookCounts.get(highlight.book_id) || 0;
+              bookCounts.set(highlight.book_id, current + 1);
+            }
+          });
+
+          const groupableCount = Array.from(bookCounts.values()).filter(
+            (count) => count > 1
+          ).length;
+
+          setGroupableBookCount(groupableCount);
+
+          if (groupableCount > 0 && !hasPromptedForGrouping.current) {
+            setShowGroupingPrompt(true);
+            return;
+          }
+
+          scheduleValidation();
         } else {
           toast.error(data.error || 'Failed to fetch highlights');
           setStage('idle');
@@ -67,7 +161,16 @@ export default function KanbanBoard() {
     };
 
     fetchHighlights();
-  }, [stage]);
+  }, [
+    stage,
+    credentials,
+    scheduleValidation,
+    setFetchedData,
+    setGroupableBookCount,
+    setShowGroupingPrompt,
+    setStage,
+    syncConfig,
+  ]);
 
   // Validate highlights
   useEffect(() => {
@@ -131,7 +234,7 @@ export default function KanbanBoard() {
     };
 
     validateData();
-  }, [stage]);
+  }, [fetchedData, stage, setStage, setValidationSummary]);
 
   // Sync to Mem
   useEffect(() => {
@@ -150,6 +253,7 @@ export default function KanbanBoard() {
             apiKey: credentials.memApiKey,
             validationSummary,
             books: fetchedData.books,
+            groupByBook,
           }),
         });
 
@@ -166,11 +270,22 @@ export default function KanbanBoard() {
             }, index * 250);
           });
 
-          toast.success(`Synced ${data.data.synced} highlights to Mem!`);
+          if (!data.data.quotaExceeded) {
+            const syncedLabel = groupByBook ? 'notes' : 'highlights';
+            toast.success(`Synced ${data.data.synced} ${syncedLabel} to Mem!`);
+          }
+
+          if (data.data.quotaExceeded) {
+            openQuotaModal({
+              details: data.data.quotaDetails,
+              synced: data.data.synced,
+              errors: data.data.errors,
+            });
+          }
 
           analytics.syncCompleted({
             syncType: syncConfig?.option || 'full',
-            totalHighlights: data.data.total,
+            totalHighlights: data.data.totalHighlights ?? data.data.total,
             syncedCount: data.data.synced,
             errorCount: data.data.errors,
             durationSeconds: Math.round((Date.now() - startTime) / 1000),
@@ -180,7 +295,31 @@ export default function KanbanBoard() {
             setStage('complete');
           }, validResults.length * 250 + 1000);
         } else {
-          toast.error(data.error || 'Sync failed');
+          const quotaPayload = (data?.data ?? null) as
+            | {
+                quotaExceeded?: boolean;
+                quotaDetails?: {
+                  plan?: string;
+                  limit?: number;
+                  used?: number;
+                  resetTime?: string;
+                  upgradeUrl?: string;
+                  message?: string;
+                } | null;
+                synced?: number;
+                errors?: number;
+              }
+            | null;
+
+          if (quotaPayload?.quotaExceeded) {
+            openQuotaModal({
+              details: quotaPayload.quotaDetails,
+              synced: quotaPayload.synced,
+              errors: quotaPayload.errors,
+            });
+          } else {
+            toast.error(data.error || 'Sync failed');
+          }
           setStage('idle');
         }
       } catch {
@@ -190,7 +329,16 @@ export default function KanbanBoard() {
     };
 
     executeSync();
-  }, [stage]);
+  }, [
+    stage,
+    credentials,
+    fetchedData,
+    groupByBook,
+    openQuotaModal,
+    setStage,
+    syncConfig,
+    validationSummary,
+  ]);
 
   const isActive = ['fetching', 'validating', 'syncing'].includes(stage);
 
@@ -253,6 +401,22 @@ export default function KanbanBoard() {
           </motion.div>
         )}
       </div>
+
+      <GroupByBookModal
+        isOpen={showGroupingPrompt}
+        groupedBookCount={groupableBookCount}
+        onGroup={() => handleGroupingDecision(true)}
+        onKeepSeparate={() => handleGroupingDecision(false)}
+        onClose={() => handleGroupingDecision(false)}
+      />
+
+      <QuotaExceededModal
+        isOpen={quotaModalOpen}
+        onClose={() => setQuotaModalOpen(false)}
+        details={quotaDetails}
+        synced={quotaCounts.synced}
+        errors={quotaCounts.errors}
+      />
     </div>
   );
 }
