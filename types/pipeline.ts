@@ -60,5 +60,6 @@ export interface PipelineState {
   };
   validationSummary: ValidationSummary;
   syncProgress: CreateNoteProgress;
+  groupByBook: boolean;
   error: string | null;
 }

@@ -14,6 +14,7 @@ interface PipelineStore extends PipelineState {
   setValidationSummary: (summary: ValidationSummary) => void;
   setSyncProgress: (progress: CreateNoteProgress) => void;
   setError: (error: string | null) => void;
+  setGroupByBook: (groupByBook: boolean) => void;
   reset: () => void;
 }
 
@@ -44,13 +45,45 @@ const initialState: PipelineState = {
     errors: 0,
     status: 'pending',
   },
+  groupByBook: false,
   error: null,
 };
 
 export const usePipelineStore = create<PipelineStore>((set) => ({
   ...initialState,
 
-  setStage: (stage) => set({ stage }),
+  setStage: (stage) =>
+    set(() => {
+      if (stage === 'fetching') {
+        return {
+          stage,
+          fetchProgress: {
+            total: 0,
+            current: 0,
+            status: 'pending',
+          },
+          fetchedData: { highlights: [], books: [] },
+          validationSummary: {
+            total: 0,
+            valid: 0,
+            warnings: 0,
+            invalid: 0,
+            status: 'pending',
+            results: [],
+          },
+          syncProgress: {
+            total: 0,
+            synced: 0,
+            errors: 0,
+            status: 'pending',
+          },
+          error: null,
+          groupByBook: false,
+        } satisfies Partial<PipelineState>;
+      }
+
+      return { stage } satisfies Partial<PipelineState>;
+    }),
 
   setCredentials: (credentials) => set({ credentials }),
 
@@ -68,6 +101,8 @@ export const usePipelineStore = create<PipelineStore>((set) => ({
   setSyncProgress: (syncProgress) => set({ syncProgress }),
 
   setError: (error) => set({ error }),
+
+  setGroupByBook: (groupByBook) => set({ groupByBook }),
 
   reset: () => set(initialState),
 }));
