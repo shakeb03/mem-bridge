@@ -3,7 +3,7 @@ POST http://localhost:3000/api/readwise/test
 Content-Type: application/json
 
 {
-  "token": "XkqXvWoS8QBCFN6aWXHys6ETmqvNyjth7RsiHbNeS3BflDJNNT"
+  "token": "token"
 }
 
 ### Test Mem Connection
@@ -11,7 +11,7 @@ POST http://localhost:3000/api/mem/test
 Content-Type: application/json
 
 {
-  "apiKey": "sk-mem-eaef9866-bb10-47a9-acfc-5c94f6d014d1"
+  "apiKey": "token"
 }
 
 ### Fetch Readwise Highlights (Full Sync)
@@ -19,7 +19,7 @@ POST http://localhost:3000/api/readwise/fetch
 Content-Type: application/json
 
 {
-  "token": "XkqXvWoS8QBCFN6aWXHys6ETmqvNyjth7RsiHbNeS3BflDJNNT"
+  "token": "token"
 }
 
 ### Fetch Readwise Highlights (Date Range)
@@ -27,7 +27,7 @@ POST http://localhost:3000/api/readwise/fetch
 Content-Type: application/json
 
 {
-  "token": "XkqXvWoS8QBCFN6aWXHys6ETmqvNyjth7RsiHbNeS3BflDJNNT",
+  "token": "token",
   "dateRange": {
     "start": "2024-01-01",
     "end": "2024-12-31"
@@ -60,7 +60,7 @@ POST http://localhost:3000/api/sync/execute
 Content-Type: application/json
 
 {
-  "apiKey": "your_mem_api_key_here",
+  "apiKey": "token",
   "validationSummary": {
     "results": []
   },
@@ -87,8 +87,8 @@ Content-Type: application/json
 {
   "userId": "test-user-123",
   "credentials": {
-    "readwiseToken": "your_token",
-    "memApiKey": "your_key"
+    "readwiseToken": "token",
+    "memApiKey": "key"
   }
 }
 
