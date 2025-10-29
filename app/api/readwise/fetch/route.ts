@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ReadwiseClient } from '@/lib/readwise';
 
-export const maxDuration = 60; // 60 seconds timeout for long-running fetch
+export const maxDuration = 300; // 60 seconds timeout for long-running fetch
 
 export async function POST(request: NextRequest) {
   try {
