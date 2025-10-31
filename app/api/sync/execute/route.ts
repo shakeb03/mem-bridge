@@ -41,6 +41,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (validHighlights.length > 80) {
+      return NextResponse.json({
+        success: false,
+        error: `Syncing ${validHighlights.length} highlights exceeds the 80 per-session limit (Vercel timeout constraint).`,
+        suggestion: 'Please use date range to sync 80 or fewer highlights at a time. Try "Last 7 days" for recent highlights.',
+      }, { status: 413 });
+    }
+
     // Format highlights into Mem notes
     const memNotes = groupByBook
       ? formatHighlightsGroupedByBook(

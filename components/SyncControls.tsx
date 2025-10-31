@@ -9,9 +9,24 @@ import toast from 'react-hot-toast';
 
 export default function SyncControls() {
   const { credentials, setSyncConfig, setStage } = usePipelineStore();
-  const [selectedOption, setSelectedOption] = useState<'full' | 'date-range'>('full');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
+  
+  // Default to last 7 days
+  const getDefaultDateRange = () => {
+    const end = new Date();
+    const start = new Date();
+    start.setDate(start.getDate() - 7);
+    
+    return {
+      start: start.toISOString().split('T')[0],
+      end: end.toISOString().split('T')[0],
+    };
+  };
+
+  const defaults = getDefaultDateRange();
+  
+  const [selectedOption, setSelectedOption] = useState<'date-range'>('date-range');
+  const [startDate, setStartDate] = useState(defaults.start);
+  const [endDate, setEndDate] = useState(defaults.end);
 
   const isBridgeActive = credentials?.readwiseToken && credentials?.memApiKey;
 
@@ -21,24 +36,19 @@ export default function SyncControls() {
       return;
     }
 
-    if (selectedOption === 'date-range' && (!startDate || !endDate)) {
+    if (!startDate || !endDate) {
       toast.error('Please select both start and end dates');
       return;
     }
 
-    if (
-      selectedOption === 'date-range' &&
-      new Date(startDate) > new Date(endDate)
-    ) {
+    if (new Date(startDate) > new Date(endDate)) {
       toast.error('Start date must be before end date');
       return;
     }
 
     const config: SyncConfig = {
       option: selectedOption,
-      ...(selectedOption === 'date-range' && {
-        dateRange: { start: startDate, end: endDate },
-      }),
+      dateRange: { start: startDate, end: endDate },
     };
 
     setSyncConfig(config);
@@ -48,72 +58,116 @@ export default function SyncControls() {
 
   return (
     <div 
-      className="border-b px-8 py-4"
+      className="border-b px-8 py-6"
       style={{ 
         backgroundColor: 'white',
         borderColor: memColors.gray200,
       }}
     >
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-center gap-6">
-          {/* Sync Option Tabs */}
+        {/* Limit Warning */}
+        <div className="text-center mb-4">
           <div 
-            className="flex gap-2 p-1 rounded-lg"
-            style={{ backgroundColor: memColors.gray100 }}
+            className="inline-block rounded-lg px-4 py-3 border-2"
+            style={{
+              backgroundColor: memColors.primaryVeryLight,
+              borderColor: memColors.primaryLight,
+            }}
           >
-            <button
-              onClick={() => setSelectedOption('full')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                selectedOption === 'full'
-                  ? 'shadow-sm'
-                  : ''
-              }`}
+            <p className="text-sm font-semibold" style={{ color: memColors.accent }}>
+              💡 Syncs up to 80 highlights per session per day (400 per day)
+            </p>
+            <p className="text-xs mt-1" style={{ color: memColors.gray600 }}>
+              Large library? Sync week by week for best performance
+            </p>
+          </div>
+        </div>
+
+        {/* Sync Controls */}
+        <div className="flex items-center justify-center gap-6">
+          {/* Date Range Inputs */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex items-center gap-3"
+          >
+            <label className="text-sm font-medium" style={{ color: memColors.accent }}>
+              Date Range:
+            </label>
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className="px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:border-transparent transition-all"
               style={{
-                backgroundColor: selectedOption === 'full' ? 'white' : 'transparent',
-                color: selectedOption === 'full' ? memColors.accent : memColors.gray600,
+                borderColor: memColors.gray300,
+              }}
+            />
+            <span className="text-gray-400">→</span>
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              max={new Date().toISOString().split('T')[0]}
+              className="px-3 py-2 border rounded-lg text-sm focus:ring-2 focus:border-transparent transition-all"
+              style={{
+                borderColor: memColors.gray300,
+              }}
+            />
+          </motion.div>
+
+          {/* Quick Preset Buttons */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                const end = new Date();
+                const start = new Date();
+                start.setDate(start.getDate() - 7);
+                setStartDate(start.toISOString().split('T')[0]);
+                setEndDate(end.toISOString().split('T')[0]);
+              }}
+              className="px-3 py-2 text-xs font-medium rounded-md border transition-colors"
+              style={{
+                borderColor: memColors.gray300,
+                color: memColors.gray700,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = memColors.primaryVeryLight;
+                e.currentTarget.style.borderColor = memColors.primary;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.borderColor = memColors.gray300;
               }}
             >
-              Full Sync
+              Last 7 Days
             </button>
             <button
-              onClick={() => setSelectedOption('date-range')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
-                selectedOption === 'date-range'
-                  ? 'shadow-sm'
-                  : ''
-              }`}
+              onClick={() => {
+                const end = new Date();
+                const start = new Date();
+                start.setDate(start.getDate() - 30);
+                setStartDate(start.toISOString().split('T')[0]);
+                setEndDate(end.toISOString().split('T')[0]);
+              }}
+              className="px-3 py-2 text-xs font-medium rounded-md border transition-colors"
               style={{
-                backgroundColor: selectedOption === 'date-range' ? 'white' : 'transparent',
-                color: selectedOption === 'date-range' ? memColors.accent : memColors.gray600,
+                borderColor: memColors.gray300,
+                color: memColors.gray700,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = memColors.primaryVeryLight;
+                e.currentTarget.style.borderColor = memColors.primary;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+                e.currentTarget.style.borderColor = memColors.gray300;
               }}
             >
-              Date Range
+              Last 30 Days
             </button>
           </div>
-  
-          {/* Date Range Inputs */}
-          {selectedOption === 'date-range' && (
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="flex items-center gap-3"
-            >
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-              <span className="text-gray-400">→</span>
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </motion.div>
-          )}
-          
+
           {/* Sync Button */}
           <motion.button
             onClick={handleSync}
